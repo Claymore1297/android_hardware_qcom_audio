@@ -25,7 +25,7 @@
 #include <dlfcn.h>
 
 #include <cutils/list.h>
-#include <cutils/log.h>
+#include <log/log.h>
 #include <system/thread_defs.h>
 #include <tinyalsa/asoundlib.h>
 #include <audio_effects/effect_visualizer.h>
@@ -81,11 +81,11 @@ struct effect_context_s {
     effect_ops_t ops;
 };
 
-typedef struct output_context_s {
+struct output_context_s {
     struct listnode outputs_list_node;  /* node in active_outputs_list */
     audio_io_handle_t handle; /* io handle */
     struct listnode effects_list; /* list of effects attached to this output */
-} output_context_t;
+};
 
 
 /* maximum time since last capture buffer update before resetting capture buffer. This means
@@ -894,9 +894,13 @@ int visualizer_command(effect_context_t * context, uint32_t cmdCode, uint32_t cm
     case VISUALIZER_CMD_MEASURE: {
         if (pReplyData == NULL || replySize == NULL ||
                 *replySize < (sizeof(int32_t) * MEASUREMENT_COUNT)) {
-            ALOGV("%s VISUALIZER_CMD_MEASURE error *replySize %d <"
-                    "(sizeof(int32_t) * MEASUREMENT_COUNT) %d",
-                    __func__, *replySize, sizeof(int32_t) * MEASUREMENT_COUNT);
+            if (replySize == NULL) {
+                ALOGV("%s VISUALIZER_CMD_MEASURE error replySize NULL", __func__);
+            } else {
+                ALOGV("%s VISUALIZER_CMD_MEASURE error *replySize %u <"
+                        "(sizeof(int32_t) * MEASUREMENT_COUNT) %zu",
+                        __func__, *replySize, sizeof(int32_t) * MEASUREMENT_COUNT);
+            }
             android_errorWriteLog(0x534e4554, "30229821");
             return -EINVAL;
         }
@@ -1311,11 +1315,11 @@ const struct effect_interface_s effect_interface = {
 
 __attribute__ ((visibility ("default")))
 audio_effect_library_t AUDIO_EFFECT_LIBRARY_INFO_SYM = {
-    tag : AUDIO_EFFECT_LIBRARY_TAG,
-    version : EFFECT_LIBRARY_API_VERSION,
-    name : "Visualizer Library",
-    implementor : "The Android Open Source Project",
-    create_effect : effect_lib_create,
-    release_effect : effect_lib_release,
-    get_descriptor : effect_lib_get_descriptor,
+    .tag = AUDIO_EFFECT_LIBRARY_TAG,
+    .version = EFFECT_LIBRARY_API_VERSION,
+    .name = "Visualizer Library",
+    .implementor = "The Android Open Source Project",
+    .create_effect = effect_lib_create,
+    .release_effect = effect_lib_release,
+    .get_descriptor = effect_lib_get_descriptor,
 };

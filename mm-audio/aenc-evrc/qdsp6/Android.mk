@@ -16,6 +16,8 @@ libOmxEvrcEnc-def += -D_DEBUG
 libOmxEvrcEnc-def += -Wconversion
 libOmxEvrcEnc-def += -DAUDIOV2
 
+libOmxEvrcEnc-def += -Wno-sign-conversion -Wno-shorten-64-to-32 -Wno-self-assign -Wno-parentheses-equality -Wno-format -Wno-sign-compare -Wno-tautological-compare -Wno-unused-local-typedef
+
 # ---------------------------------------------------------------------------------
 #             Make the Shared library (libOmxEvrcEnc)
 # ---------------------------------------------------------------------------------
@@ -36,8 +38,7 @@ LOCAL_SHARED_LIBRARIES  := libutils liblog
 LOCAL_SRC_FILES         := src/aenc_svr.c
 LOCAL_SRC_FILES         += src/omx_evrc_aenc.cpp
 
-LOCAL_C_INCLUDES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include
-LOCAL_ADDITIONAL_DEPENDENCIES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
+LOCAL_HEADER_LIBRARIES  := generated_kernel_headers
 
 include $(BUILD_SHARED_LIBRARY)
 
